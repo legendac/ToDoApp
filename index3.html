@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>New To-Do List</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Custom styles for this template -->
+    <style>
+        body {
+            padding-top: 50px;
+            overflow: hidden;
+        }
+
+        .navbar-brand,
+        .navbar-nav > li > a {
+            color: black;
+        }
+
+        .navbar-nav > li.active > a,
+        .navbar-nav > li.active > a:hover,
+        .navbar-nav > li.active > a:focus {
+            background-color: lightgreen;
+        }
+
+        td.task {
+            width: 25%;
+            background-color: seashell;
+        }
+
+        td.comment {
+            width: 70%;
+        }
+
+        th.task {
+            width: 25%;
+        }
+
+        th.comment {
+            width: 75%;
+        }
+
+        td > label.checkbox {
+            width: 5%;
+        }
+
+        #wrapper {
+            min-height: 100%;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-block;
+        }
+
+        #main-wrapper {
+            height: 100%;
+            overflow-y: auto;
+            padding: 50px 0 0 0;
+        }
+
+        #main {
+            position: relative;
+            height: 100%;
+            overflow-y: auto;
+            padding: 0 15px;
+        }
+
+        #sidebar-wrapper {
+            height: 100%;
+            padding: 50px 0 0 0;
+            position: fixed;
+            border-right: 1px solid gray;
+        }
+
+        #sidebar {
+            position: relative;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        #sidebar .list-group-item {
+            border-radius: 0;
+            border-left: 0;
+            border-right: 0;
+            border-top: 0;
+        }
+
+        @media (max-width: 992px) {
+            body {
+                padding-top: 0;
+            }
+        }
+
+        @media (min-width: 992px) {
+            #main-wrapper {
+                float: right;
+            }
+        }
+
+        @media (max-width: 992px) {
+            #main-wrapper {
+                padding-top: 0;
+            }
+        }
+
+        @media (max-width: 992px) {
+            #sidebar-wrapper {
+                position: static;
+                height: auto;
+                max-height: 300px;
+                border-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container" ng-app="toDoApp" ng-controller="itemController" ng-cloak>
+    <div id="header" class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar-header">
+            <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                <i class="icon-reorder"></i>
+            </button>
+            <a class="navbar-brand" href="#">
+                To-DO List
+            </a>
+        </div>
+        <nav class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li ng-repeat="c in categories" class="c" ng-click=newActive(c)
+                    ng-class="{'active': c.category === tab}">
+                    <a href="{{c.category}}" data-toggle="tab">{{c.category}}</a>
+                </li>
+                <li>
+                    <a href="#" id="popover">
+                        <icon class="glyphicon glyphicon-plus"></icon>
+                    </a>
+                </li>
+            </ul>
+
+
+            <ul class="nav navbar-nav pull-right">
+                <li><a>WORK HARD. WORK SMART</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav pull-right">
+                <li class="dropdown">
+                    <a href="#" id="nbAcctDD" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i>Username<i
+                            class="icon-sort-down"></i></a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a href="#">Log Out</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div id="wrapper">
+        <div id="sidebar-wrapper" class="col-md-12">
+
+            <table class="table-condensed table">
+                <tr>
+                    <th class="task">Task</th>
+                    <th class="comment">Comment</th>
+
+                </tr>
+
+                <tr ng-class="{'danger': item.completed === true}"
+                    ng-repeat="item in items | toArray | filter:ofCategory(tab)"> <!--| orderBy:sort-->
+                    <td class="task">{{item.task}}</td>
+                    <td class="comment">{{item.comment}}</td>
+                    <td><label class="checkbox">
+                        <input type="checkbox" ng-model="item.completed" ng-change="changeCompleted(item)"/>
+                    </label></td>
+
+                </tr>
+            </table>
+
+            <button id="remove-completed-btn" class="btn btn-xs btn-danger pull-right"
+                    ng-click="removeCompletedItems()">Remove Completed
+            </button>
+            <br/><br/>
+
+            <form class="form-inline">
+                <input id="item-category" type="text" ng-model="item.category"
+                       ng-change="newCategory.category=item.category" placeholder="Category"/>
+                <br/>
+                <input id="item-task" type="text" ng-model="item.task" placeholder="Task"/>
+                <br/>
+                <input id="item-comment" type="text" ng-model="item.comment" placeholder="Notes"/>
+                <button id="add-btn1" class="btn btn-xs btn-success" ng-click="addTask(item)">Add</button>
+            </form>
+
+            <br/>
+
+            <form class="form-inline ng-hide">
+                <input id="newCategory-category" type="text" ng-model="newCategory.category" placeholder="Category"/>
+                <button id="add-btn2" class="btn btn-xs btn-success" ng-click="addCategory(newCategory)">Add</button>
+            </form>
+            <br/>
+            <!---->
+            {{tab}}
+
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== --‰‰‰‰>
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-route.js"></script>
+<script src="https://cdn.firebase.com/v0/firebase.js"></script>
+<script src="https://cdn.firebase.com/libs/angularfire/0.5.0/angularfire.min.js"></script>
+
+
+<script>
+    var toDoApp = angular.module('toDoApp', ['firebase']);
+
+    toDoApp.service('myService', [  "$firebase", function ($firebase) {
+        //
+        var url = 'https://iscrying.firebaseio.com';
+
+        this.getList = function (path) {
+            var ref = new Firebase(url + '/' + path);
+            console.log(ref);
+            return $firebase(ref);
+        };
+        this.addItem = function (newItem) {
+            var ref = new Firebase(url + '/items/' + newItem.id);
+            ref.set(newItem);
+
+        };
+        this.deleteItem = function (id) {
+            var ref = new Firebase(url + '/items/' + id);
+            ref.remove();
+        };
+        this.addCategory = function (newCategory) {
+            var ref = new Firebase(url + '/category/' + newCategory.id);
+            ref.set(newCategory);
+        };
+        this.updateTab = function (c) {
+            var ref = new Firebase(url + '/tab/');
+            ref.set(c);
+        };
+    }]);
+    toDoApp.controller('itemController', function ($scope, myService) {
+        $scope.loaded = false;
+        $scope.tab = myService.getList('tab');
+        $scope.tab.$bind($scope, "tab");
+
+        $scope.items = myService.getList('items');
+        $scope.categories = myService.getList('category');
+
+
+        $scope.item = '';
+        $scope.newCategory = '';
+
+        $scope.ofCategory = function (tab) {
+            return function (item) {
+                return item.category === tab;
+            }
+        };
+
+        $scope.newActive = function (item) {
+            $scope.tab = item.category;
+            myService.updateTab(item.category);
+            // Refresh Table?
+        };
+        $scope.changeCompleted = function (items) {
+            // Update the item
+            $scope.items.$child(item.id).$set(item);
+            $scope.item.completed = true;
+            var message = (item.completed === true) ? 'Task Completed!' : 'Task Uncompleted!';
+        };
+
+        $scope.removeCompletedItems = function () {
+            // If a item is completed, delete it
+            $scope.items.$getIndex().forEach(function (index) {
+                if ($scope.items[index].completed === true) {
+                    myService.deleteItem(index);
+                }
+            });
+        };
+
+        $scope.addTask = function (item) {
+            item.id = generateID();
+            myService.addItem(item);
+
+
+            var existingCat = false;
+            $scope.categories.$getIndex().forEach(function (index) {
+                if ($scope.categories[index].category === item.category) {
+                    existingCat = true;
+                }
+            });
+
+            if (existingCat === false) {
+                $scope.addCategory($scope.newCategory);
+            }
+            $scope.item = '';
+
+        };
+
+        $scope.addCategory = function (newCategory) {
+            newCategory.id = generateID();
+            myService.addCategory(newCategory);
+            $scope.newCategory = '';
+        };
+
+        // Random ID generator
+        function generateID() {
+            var chars, x, length = 10;
+            chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-=";
+            var name = [];
+            for (x = 0; x < length; x++) {
+                name.push(chars[Math.floor(Math.random() * chars.length)]);
+            }
+            var id = name.join('');
+            if ($scope.items.$getIndex().indexOf(id) === -1) {
+                return id;
+            } else {
+                generateID();
+            }
+        }
+
+
+    });
+    toDoApp.filter('toArray', function () {
+        return function (input) {
+            var out = [0];
+            for (i in input) {
+                out.push(input[i]);
+            }
+            return out;
+        }
+    });
+</script>
+</body>
+</html>
