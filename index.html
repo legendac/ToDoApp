@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="toDoApp">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>CONS-ideration</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Custom styles for this template -->
+    <style>
+        /* app css stylesheet */
+        html, body {
+            height: 100%;
+            padding-top: 25px;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        .t1 {
+            height: 800px;
+        }
+
+        .table {
+            min-height: 100%;
+        }
+
+        .navbar-brand,
+        .navbar-nav > li > a {
+            color: black;
+        }
+
+        .navbar-nav > li.active > a,
+        .navbar-nav > li.active > a:hover,
+        .navbar-nav > li.active > a:focus {
+            background-color: lightgreen;
+        }
+
+        td.task {
+            width: 25%;
+            background-color: seashell;
+        }
+
+        td.comment {
+            width: 70%;
+        }
+
+        td.checkbox {
+            width: 5%;
+        }
+
+
+    </style>
+    <!-- color: white; -->
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]>
+    <script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+
+<div class="ng-cloak" ng-controller="itemController">
+    <!-- Nav Bar -->
+
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-click="$event.preventDefault()">
+
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><strong>To-Do </strong><i>list</i></a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav pull-left">
+                <li ng-repeat="c in category" class="c" ng-click=newActive(c) ng-class="{'active': c.category == tab}">
+                    <a href="#{{c.category}}" data-toggle="tab">{{c.category}}</a>
+                </li>
+                <li>
+                    <a href="#" id="popover">
+                        <icon class="glyphicon glyphicon-plus"></icon>
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                <li><a>WORK HARD. WORK SMART</a></li>
+            </ul>
+        </div>
+
+    </nav>
+    <!-- Body -->
+
+    <div class="container t1">
+        <table class="table-condensed table">
+            <tr ng-class="{'danger': item.completed == true}"
+                ng-repeat="item in items | toArray | filter:ofCategory(tab)"> <!--| orderBy:sort-->
+
+                <td class="task">{{item.task}}</td>
+                <td class="comment">{{item.comment}}</td>
+                <td><label class="checkbox">
+                    <input type="checkbox" ng-model="item.completed" ng-change="changeCompleted(item)"/>
+                </label></td>
+
+            </tr>
+        </table>
+
+        <br/>
+    </div>
+    <div class="container">
+        <form class="form-inline">
+            <input id="item-category" type="text" ng-model="newCategory" placeholder="Category"/>
+            <br/>
+            <input id="item-task" type="text" ng-model="newItemTask" placeholder="Task"/>
+            <br/>
+            <input id="item-comment" type="text" ng-model="newItemComment" placeholder="Notes"/>
+            <button id="add-btn" class="btn btn-xs btn-success"
+                    ng-click="addTask(newCategory,newItemTask,newItemComment)">Add
+            </button>
+        </form>
+
+        <p id="empty" ng-hide="(items.$getIndex() || items.length) || !loaded"></p>
+
+        <p>
+            <a href id="remove-completed-btn" ng-click="removeCompletedItems()">Remove completed items</a>
+        </p>
+        <br/>
+
+        <form class="form-inline">
+            <input id="category-title" type="text" ng-model="newCategory" placeholder="Category"/>
+            <button id="add-btn" class="btn btn-xs btn-success" ng-click="addCategory(newCategory)">Add</button>
+        </form>
+    </div>
+
+
+</div>
+<div class="container">
+    <div id="main" ng-app ng-controller="inlineEditor" ng-click="hideTooltip()">
+
+        <!-- This is the tooltip. It is shown only when the showtooltip variable is truthful -->
+        <div class="tooltip" ng-click="$event.stopPropagation()" ng-show="showtooltip">
+
+            <!-- ng-model binds the contents of the text field with the "value" model.
+             Any changes to the text field will automatically update the value, and
+             all other bindings on the page that depend on it.  -->
+            <input type="text" ng-model="value"/>
+        </div>
+
+        <!-- Call a method defined in the InlineEditorController that toggles
+         the showtooltip variable -->
+        <p ng-click="toggleTooltip($event)">{{value}}</p>
+
+    </div>
+</div>
+<!-- Bootstrap core JavaScript
+================================================== --‰‰‰‰>
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-route.js"></script>
+<script src="https://cdn.firebase.com/v0/firebase.js"></script>
+<script src="https://cdn.firebase.com/libs/angularfire/0.5.0/angularfire.min.js"></script>
+
+<script>
+    var toDoApp = angular.module('toDoApp', ['firebase']);
+
+
+    toDoApp.controller('itemController', function ($scope, $firebase) {
+
+        $scope.loaded = false;
+        var ref = new Firebase('https://iscrying.firebaseio.com/');
+        var itemRef = ref.child('items');
+        $scope.items = $firebase(itemRef);
+        $scope.items.$bind($scope, "items");
+
+        var categoryRef = ref.child('category');
+        $scope.category = $firebase(categoryRef);
+        $scope.category.$bind($scope, "category");
+
+        var tabRef = ref.child('tab');
+        $scope.tab = $firebase(tabRef);
+        $scope.tab.$bind($scope, "tab");
+
+        $scope.showInfo = function (item) {
+            $scope.itemComment = item.comment;
+        }
+
+        $scope.newActive = function (item) {
+            $scope.tab = item.category;
+            // Refresh Table?
+        }
+
+        $scope.ofCategory = function (tab) {
+            return function (item) {
+                return item.category == tab;
+            }
+        }
+
+
+        $scope.addCategory = function (category) {
+            if (category !== '') {
+                $scope.tab = category;
+                // Reset the title to an empty string
+                $scope.newCategory = '';
+                // Each item is an object with a title, comment and a generated ID
+                // Set the newly created item as a child in the item collection
+                var id = generateID();
+                $scope.category.$child(id).$set({
+                    category: category,
+                    id: id
+                });
+                $scope.category.$child(id)
+                //newActive
+
+            } else {
+                alert("Please type something!");
+            }
+        };
+
+        /*
+         $scope.addTask = function(category, task, comment) {
+         if (category !== '' && task !== '' && comment !== '') {
+
+         // Reset the title to an empty string
+         $scope.newCategory = '';
+         $scope.newItemTask = '';
+         $scope.newItemComment = '';
+         // Each item is an object with a title, comment and a generated ID
+         // Set the newly created item as a child in the item collection
+         var id = generateID();
+         $scope.items.$child(id).$set({
+         category: category,
+         task: task,
+         comment: comment,
+         id: id
+         });
+         } else {
+         alert("Please type something!");
+         }
+         };
+         */
+        $('#popover').popover({
+            html: true,
+            title: function () {
+                return $("#popover-head").html();
+            },
+            content: function () {
+                return $("#popover-content").html();
+            }
+        });
+
+        $scope.changeCompleted = function (items) {
+            // Update the item
+            $scope.items.$child(item.id).$set(item);
+            $scope.item.completed = true;
+            var message = (item.completed === true) ? 'Task Completed!' : 'Task Uncompleted!';
+        };
+
+        $scope.removeCompletedItems = function () {
+            // If a item is completed, delete it
+            $scope.items.$getIndex().forEach(function (index) {
+                if ($scope.items[index].completed === true) {
+                    $scope.items.$remove(index);
+                }
+            });
+        };
+
+        // Random ID generator
+        function generateID() {
+            var chars, x, length = 10;
+            chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-=";
+            var name = [];
+            for (x = 0; x < length; x++) {
+                name.push(chars[Math.floor(Math.random() * chars.length)]);
+            }
+            var id = name.join('');
+            if ($scope.items.$getIndex().indexOf(id) === -1) {
+                return id;
+            } else {
+                generateId();
+            }
+        };
+
+    });
+
+
+    toDoApp.filter('toArray', function () {
+        return function (input) {
+            var out = [0];
+            for (i in input) {
+                out.push(input[i]);
+            }
+            return out;
+        }
+    });
+    /*
+     toDoApp.filter('ofCategory', function() {
+     return function(items, scope) {
+     var arrayToReturn = [];
+     for (var i = 0; i<items.length; i++) {
+     //http://jsfiddle.net/TuNyj/
+
+     console.log(i.category);
+     if (i.category == scope.tab) {
+     arrayToReturn.push(input[i]);
+     }
+     }
+     return arrayToReturn;
+     }
+     });*/
+
+    toDoApp.controller('inlineEditor', function ($scope, $firebase) {
+        // $scope is a special object that makes
+        // its properties available to the view as
+        // variables. Here we set some default values:
+
+        $scope.showtooltip = false;
+        $scope.value = 'Edit me.';
+
+        // Some helper functions that will be
+        // available in the angular declarations
+
+        $scope.hideTooltip = function () {
+
+            // When a model is changed, the view will be automatically
+            // updated by by AngularJS. In this case it will hide the tooltip.
+
+            $scope.showtooltip = false;
+        }
+
+        $scope.toggleTooltip = function (e) {
+            e.stopPropagation();
+            $scope.showtooltip = !$scope.showtooltip;
+        }
+    });
+
+</script>
+</body>
+
+</html>
